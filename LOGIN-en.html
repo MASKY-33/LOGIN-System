@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Masky Company - Login Security Test</title>
+    
+    <link rel="stylesheet" href="LOGIN-en.css">
+</head>
+<body>
+
+    <!-- Start-titel -->
+    <h1 class="hacker-title" id="main-title">Enter the indicated SQL injection</h1>
+
+    <!-- Nieuwe Hoofdboodschap -->
+    <h1 class="success-main-title" id="success-title">
+        Impressive how fast it can go once it has been found, right?<br>
+        <span class="highlight-prevent">These actions are PREVENTED in my systems.</span>
+    </h1>
+
+    <!-- Het horizontale demokader -->
+    <div class="demo-container" id="frame-container">
+
+        <!-- Invoerveld voor het wachtwoord -->
+        <input 
+            type="text" 
+            id="bypass-password" 
+            class="password-input" 
+            placeholder="Be merciful with me ;)"
+            autocomplete="off"
+        >
+
+        <!-- De SQL tip onder het invoerveld -->
+        <p class="sql-hint-text" id="sql-tip" style="display: block;">
+            Want to experience how a hacker bypasses a login without knowing the password? Copy this code: <span class="sql-code-highlight">' OR '1'='1</span> and paste it into the input field.
+        </p>
+
+        <!-- De gedetailleerde SQL-analyse -->
+        <p class="analysis-text" id="analysis-content"></p>
+
+        <!-- De teller -->
+        <p class="attempts-count" id="attempts-content">
+            Number of attempts until success [<span id="attempts-num">0</span>]
+        </p>
+
+    </div>
+
+    <!-- Knop onder het kader -->
+    <button class="action-button" id="submit-btn">
+        Click/Press the button, or<br>press Enter
+    </button>
+
+<script>
+    const passwordInput = document.getElementById('bypass-password');
+    const submitBtn = document.getElementById('submit-btn');
+    const frameContainer = document.getElementById('frame-container');
+    const sqlTip = document.getElementById('sql-tip');
+    const mainTitle = document.getElementById('main-title');
+    
+    const successTitle = document.getElementById('success-title');
+    const analysisContent = document.getElementById('analysis-content');
+    const attemptsContent = document.getElementById('attempts-content');
+    const attemptsNum = document.getElementById('attempts-num');
+    
+    let attempts = 0;
+    let hasWon = false;
+    let usedSqlInjection = false; 
+
+    function checkPassword() {
+        if (hasWon) return;
+        
+        const inputVal = passwordInput.value.trim();
+        if (!inputVal) return;
+        
+        attempts++;        
+        
+        if (inputVal.includes("' OR '1'='1") || inputVal.includes("OR")) {
+            hasWon = true;
+            usedSqlInjection = true;
+            attemptsNum.textContent = attempts;
+            handleSuccess();
+            return; 
+        }
+        
+        const backendUrl = '/api/v1/login-bypass';
+        
+        fetch(backendUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: inputVal })
+        })
+        .then(response => {
+            if (response.ok) {
+                hasWon = true;
+                usedSqlInjection = false;
+                attemptsNum.textContent = attempts;
+                handleSuccess(); 
+            } else {
+                triggerErrorAnimation();
+            }
+        })
+        .catch(error => {
+            console.error("Network error towards live API:", error);
+            triggerErrorAnimation();
+        });
+    }
+    
+    function triggerErrorAnimation() {
+        passwordInput.classList.add('error-shake');
+        setTimeout(() => { passwordInput.classList.remove('error-shake'); }, 400);
+    }
+
+    function handleSuccess() {
+        submitBtn.textContent = "Success! Access granted.";
+        submitBtn.classList.add('success-state');
+        passwordInput.readOnly = true;
+        
+        if (usedSqlInjection) {
+            analysisContent.innerHTML = "What you just did was <span class='attention'>NOT entering a password</span>. You manipulated the database behind this page with an SQL injection. You told the system: 'Log in if the code is correct, OR if 1 equals 1'. Since 1 always equals 1, the door flew open without you knowing the password. My Python systems protect your business by default against these invisible backdoors.";
+        } else {
+            analysisContent.innerHTML = "<span class='attention'>Password Analysis:</span> You entered via the correct hashed password. My Python systems block these automated attacks through strict rate-limiting.";
+        }
+        
+        setTimeout(function() {
+            mainTitle.style.display = 'none';
+            submitBtn.style.display = 'none';
+            passwordInput.style.display = 'none';
+            sqlTip.style.display = 'none';
+            
+            frameContainer.classList.add('success-layout');
+            
+            successTitle.style.display = 'block';
+            analysisContent.style.display = 'block';
+            attemptsContent.style.display = 'block';
+            
+            attemptsNum.textContent = attempts;
+        }, 3000); 
+    }
+    
+    submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        checkPassword();
+    });
+
+    passwordInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkPassword();
+        }
+    });
+</script>
+</body>
+</html>

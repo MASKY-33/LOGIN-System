@@ -1,0 +1,253 @@
+/* Base reset & Hackers-based achtergrond */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: #050b06;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-image: radial-gradient(rgba(0, 150, 0, 0.15), black 120%);
+}
+
+/* 1. DE TITEL BOVEN HET KADER IN START-STATE */
+.hacker-title {
+    color: #39ff14;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.6);
+    display: block; /* Zichtbaar bij de start */
+    text-align: center;
+    width: 100%;
+    padding: 0 15px;
+}
+
+/* 2. DE HOOFDBOODSCHAP BOVEN HET KADER IN SUCCES-STATE (Eerst verborgen) */
+.success-main-title {
+    display: none; /* Verborgen bij de start */
+    color: #39ff14;
+    font-size: 1.35rem;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 700px;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+}
+
+.highlight-prevent {
+    color: #ffffff; /* Wit voor extra nadruk */
+    text-transform: uppercase;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+}
+
+/* 3. HET HORIZONTALE KADER */
+.demo-container {
+    background-color: #0c1a0e;
+    width: 90%; /* Responsive on small screens */
+    max-width: 550px; /* Behoudt jouw design op desktop */
+    height: 250px;
+    border: 1px solid #1f4023;
+    border-radius: 24px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease; /* Zorgt voor een vloeiende overgang bij formaatwijziging */
+}
+
+/* Nieuwe layout-klasse die na 5 seconden via JS wordt toegevoegd */
+.demo-container.success-layout {
+    width: 600px; 
+    height: 320px;
+    justify-content: space-between; /* Analyse boven, teller onder */
+    padding: 25px 40px;
+}
+
+/* Het invoerveld */
+.password-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 14px 20px;
+    background-color: #e6e8e6;
+    border: 1px solid #b5bab5;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.password-input::placeholder {
+    color: #757a75;
+    opacity: 1;
+}
+
+.password-input:focus {
+    border-color: #39ff14;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+    background-color: #f0f2f0;
+}
+
+/* Animatie voor foute poging (schudden) */
+.error-shake {
+    animation: shake 0.4s ease;
+    border-color: #ff3333 !important;
+    box-shadow: 0 0 10px rgba(255, 51, 51, 0.5) !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+/* De SQL hint tekst bijna tegen de onderkant van de kader */
+.sql-hint-text {
+    display: none;
+    color: #88a88c;
+    font-size: 0.85rem;
+    margin-top: 30px;
+    margin-bottom: -5px;
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.4;
+}
+
+.sql-code-highlight {
+    color: #39ff14;
+    font-weight: bold;
+    background-color: #122615;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+        /* 4. DESIGN ELEMENTEN BINNEN HET KADER NA SUCCES */
+        .analysis-text {
+            display: none; /* Eerst verborgen */
+            color: #a8c2aa;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .attention {
+            color: #ff3333;
+            font-weight: bold;
+        }
+
+        /* De teller onderaan het kader */
+        .attempts-count {
+            display: none; /* Eerst verborgen */
+            color: #39ff14;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            margin-top: auto; /* Duwt de teller direct naar de bodem */
+            padding-top: 20px;
+        }
+
+        /* 5. ACTIEKNOP ONDER HET KADER */
+        .action-button {
+            margin-top: 25px;
+            padding: 7px 24px;
+            background-color: #1f4023;
+            border: 1px solid #39ff14;
+            border-radius: 8px;
+            color: #39ff14;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.1);
+
+            /* NIEUW: Zorgt dat de knop zich strak om de twee regels tekst heen vouwt */
+            display: inline-block;
+            width: auto; 
+            line-height: 1.5; /* Geeft wat comfortabele ademruimte tussen de twee regels tekst */
+            text-align: center;
+        }
+
+        .action-button:hover, .action-button:active {
+            background-color: #39ff14;
+            color: #050b06;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+        }
+        
+        /* State wanneer gewonnen */
+        .action-button.success-state {
+            background-color: #39ff14;
+            color: #050b06;
+            border-color: #ffffff;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.6);
+            pointer-events: none;
+        }
+
+
+        
+/* RESPONSIVENESS MEDIA QUERY VOOR SMARTPHONES */
+@media (max-width: 600px) {
+    body {
+        overflow-y: auto; /* Zorg dat mobiele gebruikers kunnen scrollen bij succes-uitleg */
+        justify-content: center;
+        align-items: center;
+        padding-top: 0;
+        height: 100vh;
+    }
+    .hacker-title {
+        font-size: 1.15rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .success-main-title {
+        font-size: 1.05rem; /* Back to 1.1rem if 1.05rem not needed */
+        margin-bottom: 25px;
+        text-align: center;  /* Delete if not needed */
+    }
+    .highlight-prevent {
+        font-size: 0.95rem;
+    }
+    .demo-container {
+        width: 92%;
+        height: auto;
+        min-height: 220px;
+        padding: 20px;
+        border-radius: 16px;
+        margin: 0 auto;
+    }
+    .demo-container.success-layout {
+        padding: 20px;
+        width: 92%;
+        height: 330px;
+        min-height: 200px
+    }
+    .password-input {
+        font-size: 1rem;
+        padding: 12px;
+    }
+    .analysis-text {
+        font-size: 0.85rem;
+    }
+    .action-button {
+        padding: auto 25px;
+        font-size: 0.95rem;
+        width: auto;
+        max-width: 290px;
+        margin-top: 20px;
+    }
+
+    .attempts-count {
+        font-size: 0.90rem;
+    }
+}

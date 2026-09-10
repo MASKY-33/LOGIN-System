@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Masky Company - Login Beveiligingstest</title>
+    
+    <link rel="stylesheet" href="LOGIN-nl.css">
+</head>
+<body>
+
+    <!-- Start-titel -->
+    <h1 class="hacker-title" id="main-title">Vul het aangegeven SQL-injectie in</h1>
+
+    <!-- Nieuwe Hoofdboodschap -->
+    <h1 class="success-main-title" id="success-title">
+        Indrukwekkend hoe snel het kan gaan eenmaal dat het gevonden is toch?<br>
+        <span class="highlight-prevent">Deze acties worden VOORKOMEN in mijn systemen.</span>
+    </h1>
+
+    <!-- Het horizontale demokader -->
+    <div class="demo-container" id="frame-container">
+
+        <!-- Invoerveld voor het wachtwoord -->
+        <input 
+            type="text" 
+            id="bypass-password" 
+            class="password-input" 
+            placeholder="Wees genadig met me ;)"
+            autocomplete="off"
+        >
+
+        <!-- De SQL tip onder het invoerveld -->
+        <p class="sql-hint-text" id="sql-tip" style="display: block;">
+            Wil je ervaren hoe een hacker een login omzeilt zonder het wachtwoord te weten? Kopieer deze code: <span class="sql-code-highlight">' OR '1'='1</span> en plak hem in het invoerveld.
+        </p>
+
+        <!-- De gedetailleerde SQL-analyse -->
+        <p class="analysis-text" id="analysis-content"></p>
+
+        <!-- De teller -->
+        <p class="attempts-count" id="attempts-content">
+            Aantal pogingen tot succes [<span id="attempts-num">0</span>]
+        </p>
+
+    </div>
+
+    <!-- Knop onder het kader -->
+    <button class="action-button" id="submit-btn">
+        Klik/Druk op de knop, of<br>druk op Enter
+    </button>
+
+<script>
+    const passwordInput = document.getElementById('bypass-password');
+    const submitBtn = document.getElementById('submit-btn');
+    const frameContainer = document.getElementById('frame-container');
+    const sqlTip = document.getElementById('sql-tip');
+    const mainTitle = document.getElementById('main-title');
+    
+    const successTitle = document.getElementById('success-title');
+    const analysisContent = document.getElementById('analysis-content');
+    const attemptsContent = document.getElementById('attempts-content');
+    const attemptsNum = document.getElementById('attempts-num');
+    
+    let attempts = 0;
+    let hasWon = false;
+    let usedSqlInjection = false; 
+
+    function checkPassword() {
+        if (hasWon) return;
+        
+        const inputVal = passwordInput.value.trim();
+        if (!inputVal) return;
+        
+        attempts++;        
+        
+        if (inputVal.includes("' OR '1'='1") || inputVal.includes("OR")) {
+            hasWon = true;
+            usedSqlInjection = true;
+            attemptsNum.textContent = attempts;
+            handleSuccess();
+            return; 
+        }
+        
+        const backendUrl = '/api/v1/login-bypass';
+        
+        fetch(backendUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: inputVal })
+        })
+        .then(response => {
+            if (response.ok) {
+                hasWon = true;
+                usedSqlInjection = false;
+                attemptsNum.textContent = attempts;
+                handleSuccess(); 
+            } else {
+                triggerErrorAnimation();
+            }
+        })
+        .catch(error => {
+            console.error("Netwerkfout richting de live API:", error);
+            triggerErrorAnimation();
+        });
+    }
+    
+    function triggerErrorAnimation() {
+        passwordInput.classList.add('error-shake');
+        setTimeout(() => { passwordInput.classList.remove('error-shake'); }, 400);
+    }
+
+    function handleSuccess() {
+        submitBtn.textContent = "Gelukt! Toegang verleend.";
+        submitBtn.classList.add('success-state');
+        passwordInput.readOnly = true;
+        
+        if (usedSqlInjection) {
+            analysisContent.innerHTML = "Wat je zojuist deed, was <span class='attention'>géén wachtwoord invoeren</span>. Je hebt de database achter deze pagina gemanipuleerd met een SQL-injectie. Je vertelde het systeem: 'Log in als de code klopt, ÓF als 1 gelijk is aan 1'. Omdat 1 altijd gelijk is aan 1, vloog de deur open zonder dat je het wachtwoord wist. Mijn Python-systemen beschermen jouw bedrijf standaard tegen dit soort onzichtbare achterdeurtjes.";
+        } else {
+            analysisContent.innerHTML = "<span class='attention'>Wachtwoord Analyse:</span> Je bent binnengekomen door middel van het correcte gehashte wachtwoord. Mijn Python-systemen weren dit soort geautomatiseerde aanvallen af via strikte rate-limiting.";
+        }
+        
+        setTimeout(function() {
+            mainTitle.style.display = 'none';
+            submitBtn.style.display = 'none';
+            passwordInput.style.display = 'none';
+            sqlTip.style.display = 'none';
+            
+            frameContainer.classList.add('success-layout');
+            
+            successTitle.style.display = 'block';
+            analysisContent.style.display = 'block';
+            attemptsContent.style.display = 'block';
+            
+            attemptsNum.textContent = attempts;
+        }, 3000); 
+    }
+    
+    submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        checkPassword();
+    });
+
+    passwordInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkPassword();
+        }
+    });
+</script>
+</body>
+</html>
